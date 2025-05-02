@@ -88,10 +88,6 @@ const userSchema = new mongoose.Schema(
                 default: []
             }
         },
-        medicalHistory: {
-            type: [String],
-            default: []
-        },
         surgeries: [{
             type: Schema.Types.ObjectId,
             ref: 'Surgery'
@@ -100,10 +96,10 @@ const userSchema = new mongoose.Schema(
             type: Schema.Types.ObjectId,
             ref: 'Doctor'
         },
-        vitals: [{
+        vitals: {
             type: Schema.Types.ObjectId,
             ref: 'Vitals'
-        }],
+        },
         recoveryProgress: [{
             type: Schema.Types.ObjectId,
             ref: 'RecoveryProgress'

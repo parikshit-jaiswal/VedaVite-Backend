@@ -8,13 +8,17 @@ const vitalsSchema = new mongoose.Schema({
         max: [300, 'Heart rate seems abnormally high']
     },
     bloodPressure: {
-        type: String,
-        required: [true, 'Blood pressure is required'],
-        validate: {
-            validator: function (v) {
-                return /^\d{2,3}\/\d{2,3}$/.test(v);
-            },
-            message: props => `${props.value} is not a valid blood pressure format! Use format like "120/80"`
+        systolic: {
+            type: Number,
+            required: [true, 'Systolic blood pressure is required'],
+            min: [0, 'Systolic blood pressure cannot be negative'],
+            max: [300, 'Systolic blood pressure seems abnormally high']
+        },
+        diastolic: {
+            type: Number,
+            required: [true, 'Diastolic blood pressure is required'],
+            min: [0, 'Diastolic blood pressure cannot be negative'],
+            max: [300, 'Diastolic blood pressure seems abnormally high']
         }
     },
     oxygenSaturation: {
@@ -29,10 +33,13 @@ const vitalsSchema = new mongoose.Schema({
         min: [30, 'Temperature seems abnormally low'],
         max: [45, 'Temperature seems abnormally high']
     },
-    recordedAt: {
+    date: {
         type: Date,
-        default: Date.now,
-        required: true
+        default: Date.now
+    },
+    day: {
+        type: String,
+        default: null
     },
     notes: {
         type: String,
@@ -44,5 +51,14 @@ const vitalsSchema = new mongoose.Schema({
         required: true
     }
 });
+
+vitalsSchema.pre('save', function (next) {
+    const recordedDate = this.date || new Date();
+    this.date = recordedDate.toISOString().split('T')[0];
+    this.day = recordedDate.toLocaleDateString('en-US', { weekday: 'long' });
+    next();
+});
+
+vitalsSchema.index({ date: -1 });
 
 export const Vitals = mongoose.model("Vitals", vitalsSchema);
