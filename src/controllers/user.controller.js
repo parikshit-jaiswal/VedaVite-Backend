@@ -240,9 +240,49 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 const getCurrentUser = asyncHandler(async (req, res) => {
     const user = req.user;
     return res.status(200).json(new ApiResponse(200, user, "User details fetched successfully"));
-})
+});
+
+const fillUserProfile = asyncHandler(async (req, res) => {
+    const {} = req.body;
+
+
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    user.fullName = fullName;
+    user.email = email;
+    user.profilePicture = profilePicture;
+
+    if (basicInfo) {
+        user.basicInfo = basicInfo;
+    }
+
+    if (medicalHistory) {
+        user.medicalHistory = medicalHistory;
+    }
+
+    if (surgeries) {
+        user.surgeries = surgeries;
+    }
+
+    if (doctorAssigned) {
+        user.doctorAssigned = doctorAssigned;
+    }
+
+    if (vitals) {
+        user.vitals = vitals;
+    }
+
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json(new ApiResponse(200, user, "User profile updated successfully"));
+});
 
 
 
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, googleAuth };
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, googleAuth, updateUserProfile };

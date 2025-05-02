@@ -53,6 +53,29 @@ const userSchema = new mongoose.Schema(
                 trim: true
             }
         },
+        basicInfo: {
+            Height: {
+                type: Number,
+                min: 0,
+                max: 300,
+                default: 0
+            },
+            Weight: {
+                type: Number,
+                min: 0,
+                max: 300,
+                default: 0
+            },
+            BloodGroup: {
+                type: String,
+                enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+                default: null
+            },
+            Allergies: {
+                type: [String],
+                default: []
+            }
+        },
         medicalHistory: {
             type: [String],
             default: []
