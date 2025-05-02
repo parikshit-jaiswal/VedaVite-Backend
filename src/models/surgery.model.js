@@ -20,18 +20,12 @@ const surgerySchema = new mongoose.Schema({
         trim: true
     },
     consultingDoctor: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        type: String,
+        trim: true
     },
     recoveryPlan: {
         type: String,
         trim: true
-    },
-    assignedProvider: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
     },
     notes: {
         type: String,

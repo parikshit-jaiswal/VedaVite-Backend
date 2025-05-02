@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.model.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken";
+import { Surgery } from "../models/surgery.model.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -101,7 +102,7 @@ const registerUser = asyncHandler(async (req, res) => {
     })
 
     const createdUser = await User.findById(user._id).select(
-        "-password -refreshToken"
+        "-password -refreshToken -createdAt -updatedAt -__v -medicalHistory -surgeries -vitals -recoveryProgress -proms -recoveryPlan"
     )
 
     if (!createdUser) {
@@ -138,7 +139,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
 
-    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken -createdAt -updatedAt -__v -medicalHistory -surgeries -vitals -recoveryProgress -proms -recoveryPlan");
 
     const options = {
         httpOnly: true,
@@ -242,10 +243,12 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, user, "User details fetched successfully"));
 });
 
-const fillUserProfile = asyncHandler(async (req, res) => {
-    const {} = req.body;
+const fillPersonalInfo = asyncHandler(async (req, res) => {
+    const { age, gender, phoneNumber, address, emergencyContactName, emergencyContactPhone } = req.body;
 
-
+    if (!age || !gender || !phoneNumber || !address || !emergencyContactName || !emergencyContactPhone) {
+        throw new ApiError(400, "All fields are required");
+    }
 
     const user = await User.findById(req.user._id);
 
@@ -253,36 +256,63 @@ const fillUserProfile = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
 
-    user.fullName = fullName;
-    user.email = email;
-    user.profilePicture = profilePicture;
-
-    if (basicInfo) {
-        user.basicInfo = basicInfo;
+    user.age = age;
+    user.gender = gender;
+    user.contactInfo = {
+        phone: phoneNumber,
+        address: address,
     }
-
-    if (medicalHistory) {
-        user.medicalHistory = medicalHistory;
-    }
-
-    if (surgeries) {
-        user.surgeries = surgeries;
-    }
-
-    if (doctorAssigned) {
-        user.doctorAssigned = doctorAssigned;
-    }
-
-    if (vitals) {
-        user.vitals = vitals;
+    user.emergencyContact = {
+        name: emergencyContactName,
+        phone: emergencyContactPhone
     }
 
     await user.save({ validateBeforeSave: false });
+    const updatedUser = await User.findById(user._id).select("-password -refreshToken -createdAt -updatedAt -__v -medicalHistory -surgeries -vitals -recoveryProgress -proms -recoveryPlan");
 
-    return res.status(200).json(new ApiResponse(200, user, "User profile updated successfully"));
+    return res.status(200).json(new ApiResponse(200, updatedUser, "Personal info filled successfully"));
+
+});
+
+const fillMedicalInfo = asyncHandler(async (req, res) => {
+    const { height, weight, bloodGroup, allergies, surgeryType, surgeryDate, doctorName, hospitalName } = req.body;
+
+    if (!height || !weight || !bloodGroup || !surgeryType || !surgeryDate || !doctorName || !hospitalName) {
+        throw new ApiError(400, "All fields are required");
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    user.basicInfo = {
+        height: height,
+        weight: weight,
+        bloodGroup: bloodGroup,
+        allergies: allergies || []
+    }
+
+    const surgery = await Surgery.create({
+        patient: user._id,
+        surgeryType: surgeryType,
+        date: surgeryDate,
+        consultingDoctor: doctorName,
+        hospitalName: hospitalName
+    })
+
+    await user.save({ validateBeforeSave: false });
+    await surgery.save({ validateBeforeSave: false });
+
+    const updatedUser = await User.findById(user._id).select("-password -refreshToken -createdAt -updatedAt -__v -medicalHistory -surgeries -vitals -recoveryProgress -proms -recoveryPlan");
+    const updatedSurgery = await Surgery.findById(surgery._id).select("-createdAt -updatedAt -__v -complications ");
+
+    return res.status(200).json(new ApiResponse(200, { user: updatedUser, surgery: updatedSurgery }, "Medical info filled successfully"));
 });
 
 
 
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, googleAuth, updateUserProfile };
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, googleAuth, fillPersonalInfo, fillMedicalInfo };

@@ -46,32 +46,44 @@ const userSchema = new mongoose.Schema(
         contactInfo: {
             phone: {
                 type: String,
-                trim: true
+                trim: true,
+                minlength: [10, 'Phone number must be at least 10 digits']
             },
             address: {
                 type: String,
                 trim: true
+            },
+        },
+        emergencyContact: {
+            name: {
+                type: String,
+                trim: true
+            },
+            phone: {
+                type: String,
+                trim: true,
+                minlength: [10, 'Emergency number must be at least 10 digits']
             }
         },
         basicInfo: {
-            Height: {
+            height: {
                 type: Number,
                 min: 0,
                 max: 300,
                 default: 0
             },
-            Weight: {
+            weight: {
                 type: Number,
                 min: 0,
                 max: 300,
                 default: 0
             },
-            BloodGroup: {
+            bloodGroup: {
                 type: String,
                 enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
                 default: null
             },
-            Allergies: {
+            allergies: {
                 type: [String],
                 default: []
             }
