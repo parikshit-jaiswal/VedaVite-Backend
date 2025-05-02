@@ -7,4 +7,4 @@ router.post('/', addParameter);
 router.get('/', getParameters);
 
 export default router;
-
+s
