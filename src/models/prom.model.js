@@ -6,63 +6,56 @@ const promSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    surgery: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Surgery',
-        required: true
-    },
     date: {
         type: Date,
         default: Date.now,
         required: true
+    },
+    day: {
+        type: String,
+        default: function () {
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            return days[this.date.getDay()];
+        }
     },
     symptomScores: {
         pain: {
             type: Number,
             required: true,
             min: 0,
-            max: 10
+            max: 5
         },
         mobility: {
             type: Number,
             required: true,
             min: 0,
-            max: 10
+            max: 5
         },
         sleepQuality: {
             type: Number,
             required: true,
             min: 0,
-            max: 10
+            max: 5
         },
         fatigue: {
             type: Number,
             required: true,
             min: 0,
-            max: 10
+            max: 5
         },
         mood: {
             type: Number,
             required: true,
             min: 0,
-            max: 10
+            max: 5
         }
-    },
-    additionalNotes: {
-        type: String,
-        trim: true
     },
     alertRaised: {
         type: Boolean,
         default: false
     },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-        immutable: true
-    }
 }, {
     timestamps: true
 });
 
-export const PROM = mongoose.model("PROM", promSchema);
+export const Prom = mongoose.model("Prom", promSchema);

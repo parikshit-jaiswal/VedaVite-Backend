@@ -109,9 +109,26 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Something went wrong while registering the user")
     }
 
-    return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered Successfully")
-    )
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+
+    const options = {
+        httpOnly: true,
+        secure: true,
+    }
+
+    return res.status(201)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(200,
+                {
+                    user: createdUser,
+                    accessToken,
+                    refreshToken
+                },
+                "User registered Successfully"
+            )
+        )
 
 })
 
@@ -240,6 +257,8 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 const getCurrentUser = asyncHandler(async (req, res) => {
     const user = req.user;
+
+    const userDetails = await User.findById(user._id)
     return res.status(200).json(new ApiResponse(200, user, "User details fetched successfully"));
 });
 

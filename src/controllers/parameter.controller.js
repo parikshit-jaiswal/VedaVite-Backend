@@ -58,5 +58,91 @@ const getParameters = async (req, res) => {
     res.status(200).json(new ApiResponse(200, allVitals, 'Vitals fetched successfully'));
 }
 
+const getHeartRate = async (req, res) => {
 
-export { getParameters };
+    // get heart rate of the user only in the form of array of object which contains date day and haeart rate use mongodb aggregation
+    const heartRate = await Vitals.aggregate([
+        { $match: { recordedBy: req.user._id } },
+        {
+            $project: {
+                _id: 0,
+                date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                day: "$day",
+                heartRate: "$heartRate"
+            }
+        },
+        { $sort: { date: -1 } }
+    ]);
+
+    if (!heartRate) {
+        return res.status(404).json(new ApiError(404, 'Heart rate not found', null));
+    }
+
+    res.status(200).json(new ApiResponse(200, heartRate, 'Heart rate fetched successfully'));
+}
+
+const getBloodPressure = async (req, res) => {
+    const bloodPressure = await Vitals.aggregate([
+        { $match: { recordedBy: req.user._id } },
+        {
+            $project: {
+                _id: 0,
+                date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                day: "$day",
+                bloodPressure: "$bloodPressure"
+            }
+        },
+        { $sort: { date: -1 } }
+    ]);
+
+    if (!bloodPressure) {
+        return res.status(404).json(new ApiError(404, 'Blood pressure not found', null));
+    }
+
+    res.status(200).json(new ApiResponse(200, bloodPressure, 'Blood pressure fetched successfully'));
+}
+
+const getOxygenSaturation = async (req, res) => {
+    const oxygenSaturation = await Vitals.aggregate([
+        { $match: { recordedBy: req.user._id } },
+        {
+            $project: {
+                _id: 0,
+                date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                day: "$day",
+                oxygenSaturation: "$oxygenSaturation"
+            }
+        },
+        { $sort: { date: -1 } }
+    ]);
+
+    if (!oxygenSaturation) {
+        return res.status(404).json(new ApiError(404, 'Oxygen saturation not found', null));
+    }
+
+    res.status(200).json(new ApiResponse(200, oxygenSaturation, 'Oxygen saturation fetched successfully'));
+}
+
+const getTemperature = async (req, res) => {
+    const temperature = await Vitals.aggregate([
+        { $match: { recordedBy: req.user._id } },
+        {
+            $project: {
+                _id: 0,
+                date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                day: "$day",
+                temperature: "$temperature"
+            }
+        },
+        { $sort: { date: -1 } }
+    ]);
+
+    if (!temperature) {
+        return res.status(404).json(new ApiError(404, 'Temperature not found', null));
+    }
+
+    res.status(200).json(new ApiResponse(200, temperature, 'Temperature fetched successfully'));
+}
+
+
+export { getParameters, getHeartRate, getBloodPressure, getOxygenSaturation, getTemperature };
