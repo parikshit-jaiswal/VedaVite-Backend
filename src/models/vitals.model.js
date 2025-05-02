@@ -30,8 +30,14 @@ const vitalsSchema = new mongoose.Schema({
     temperature: {
         type: Number,
         required: [true, 'Temperature is required'],
-        min: [30, 'Temperature seems abnormally low'],
-        max: [45, 'Temperature seems abnormally high']
+        min: [93.2, 'Temperature is too low to be safe (possible hypothermia)'],
+        max: [108.5, 'Temperature is too high to be safe (possible hyperpyrexia)'],
+        validate: {
+            validator: function (v) {
+                return v >= 93.2 && v <= 108.5;
+            },
+            message: props => `${props.value}°F is outside realistic human limits.`
+        }
     },
     date: {
         type: Date,
