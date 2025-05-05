@@ -32,6 +32,10 @@ const generateAccessAndRefreshTokens = async (userId) => {
 };
 
 const googleAuth = asyncHandler(async (req, res) => {
+
+    const { GOOGLE_CLIENT_ID } = process.env;
+    console.log("GOOGLE_CLIENT_ID", GOOGLE_CLIENT_ID);
+
     const { idToken } = req.body;
     if (!idToken) {
         throw new ApiError(400, "idToken is required")
