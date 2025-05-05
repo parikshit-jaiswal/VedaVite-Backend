@@ -4,6 +4,11 @@ import { User } from "../models/user.model.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken";
 import { Surgery } from "../models/surgery.model.js";
+import { OAuth2Client } from "google-auth-library";
+
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
