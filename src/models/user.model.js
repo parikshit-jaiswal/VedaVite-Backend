@@ -18,7 +18,9 @@ const userSchema = new mongoose.Schema(
         },
         password: {
             type: String,
-            required: [true, 'Password hash is required']
+            required: function () {
+                return !this.googleId; // Require password only if it's not a Google login
+            }
         },
         role: {
             type: String,
